@@ -40,8 +40,8 @@ Your request (28 Feb, ~04:00–04:30 PM AEST):
 ### Implementation (8 Files)
 | File | Type | Status |
 |------|------|--------|
-| **skills/registry.json** | NEW | ✅ 7-item skill registry |
-| **skills/*/SKILL.md** | NEW (×7) | ✅ Skill doc files |
+| **lib/skills/registry.json** | NEW | ✅ 5-item skill registry |
+| **lib/skills/*/SKILL.md** | NEW (×5) | ✅ Skill doc files |
 | **lib/cron.js** | MODIFIED | ✅ Auto-commit hooks |
 | **lib/ai/agent.js** | MODIFIED | ✅ Prompt injection |
 | **lib/tools/create-job.js** | MODIFIED | ✅ Local job creation |
@@ -102,7 +102,7 @@ cat GIT_COMMANDS.sh           # See exact commands
 
 | # | Feature | File | Line Count | Status |
 |---|---------|------|-----------|--------|
-| 1 | Skills Registry | `skills/registry.json` | 30 | ✅ Complete |
+| 1 | Skills Registry | `lib/skills/registry.json` | 30 | ✅ Complete |
 | 2 | Memory Injection | `lib/ai/agent.js` | +27 | ✅ Complete |
 | 3 | Heartbeat Auto-Commit | `lib/cron.js` | +20 | ✅ Complete |
 | 4 | Reflection Auto-Commit | `lib/cron.js` | +30 | ✅ Complete |
@@ -128,7 +128,7 @@ buildSystemPrompt() loads memory + skills
 Agent has full context of:
   • Recent 7 days of decisions
   • Long-term learning (MEMORY.md)
-  • Available skills (7 items)
+  • Available skills (5 items)
   ↓ (When creating job: createJob)
 Conditional dispatch:
   • RUN_LOCALLY=true → git checkout + commit (offline)

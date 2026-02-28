@@ -18,8 +18,8 @@
 ## 📦 What Was Built
 
 ### 1. **Skills Registry System** ✨ NEW
-- **`skills/registry.json`** — 7-item registry with metadata
-- **7 SKILL.md files** — One for each skill (modify-self, browser-tools, llm-secrets, brave-search, telegram, github-actions, info-retrieval)
+- **`lib/skills/registry.json`** — 5-item registry with metadata
+- **5 SKILL.md files** — One for each skill (utilities, brave-search, telegram, github-actions, info-retrieval)
 - **Integration:** Agent can list available skills + load full skill docs on demand
 
 ### 2. **Memory Persistence** 🔧 ENHANCED
@@ -65,7 +65,7 @@
 |--------|-------|
 | **Features Completed** | 7/7 ✅ |
 | **Integration Points** | 5+ ✅ |
-| **Files Created** | 8 (registry.json + 7 SKILL.md) ✅ |
+| **Files Created** | 6 (registry.json + 5 SKILL.md) ✅ |
 | **Files Modified** | 3 (cron.js, agent.js, create-job.js) ✅ |
 | **Lines of Code Added** | ~160 ✅ |
 | **Breaking Changes** | 0 (100% backward compatible) ✅ |
@@ -135,7 +135,7 @@ console.log('Created:', j.branch);"
 │  3. AGENT EXECUTION (With Full Context)                    │
 │     Agent sees:                                            │
 │     • <agent-memory> block (7 days + long-term)            │
-│     • <available-skills> block (7 skills)                  │
+│     • <available-skills> block (5 skills)                  │
 │     • Can reference both in reasoning                      │
 │                                                             │
 │  4. JOB CREATION (Local-Only When Enabled)                │
@@ -169,11 +169,9 @@ console.log('Created:', j.branch);"
 
 ### New Files (Created)
 ```
-skills/                              (✨ NEW DIRECTORY)
-├── registry.json                    (7-item registry)
-├── modify-self/SKILL.md
-├── browser-tools/SKILL.md
-├── llm-secrets/SKILL.md
+lib/skills/                              (✨ NEW DIRECTORY)
+├── registry.json                    (5-item registry)
+├── utilities/SKILL.md
 ├── brave-search/SKILL.md
 ├── telegram/SKILL.md
 ├── github-actions/SKILL.md
