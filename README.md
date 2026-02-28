@@ -1,4 +1,25 @@
-# Why thepopebot?
+# Kory's Enhanced Fork – Local-First, Free & Auditable Variant (Planning / WIP)
+
+**Status**: Brainstorming & preparation phase — not yet runnable.  
+Goal: Make this fork 100% local-run capable (Ollama + no GitHub Actions dependency) while preserving full git auditability.
+
+**Planned additions (security-preserving, zero-cost focus)**:
+- Local Ollama integration (OpenAI-compatible endpoint at http://host.docker.internal:11434/v1)
+- Persistent memory: daily Markdown logs + reflection summaries
+- Lazy-loaded skills registry + starter skills (research, email drafting, task planning, orchestrator)
+- Proactive heartbeat & daily/weekly self-reflection loops (via local cron)
+- Sub-agents / multi-agent coordination (short-lived local branches or supervisor)
+- Lightweight canvas state (JSON commits → simple frontend render)
+- Local job execution: replace GitHub Actions with `act` + simple supervisor script
+- Full Windows 11 compatibility notes (Docker Desktop WSL 2, native Ollama, Tailscale)
+
+**Why this fork?**  
+Help users run Popebot completely free/unlimited on their own hardware (Windows/Linux/Mac) without GitHub minutes limits or cloud LLM costs, while keeping the core "repo = agent" audit trail.
+
+Contributions welcome — issues/PRs for local patches especially appreciated!
+
+See original repo: https://github.com/stephengpope/thepopebot
+Original Readme # Why thepopebot?
 
 **The repository IS the agent** — Every action your agent takes is a git commit. You can see exactly what it did, when, and why. If it screws up, revert it. Want to clone your agent? Fork the repo — code, personality, scheduled jobs, full history, all of it goes with your fork.
 
