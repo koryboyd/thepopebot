@@ -1,3 +1,15 @@
-# Long-term memory & facts
+const fs = require("fs");
 
-(Agent will append important persistent facts here)
+const FILE = "./data/memory.log";
+
+function add(entry) {
+  fs.appendFileSync(FILE, `${new Date().toISOString()} ${entry}\n`);
+}
+
+function getContext() {
+  if (!fs.existsSync(FILE)) return "";
+  const lines = fs.readFileSync(FILE, "utf-8").split("\n");
+  return lines.slice(-30).join("\n");
+}
+
+module.exports = { add, getContext };
