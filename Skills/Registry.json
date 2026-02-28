@@ -2,29 +2,36 @@
   {
     "id": "core-research",
     "name": "Web & Knowledge Research",
-    "description": "Search, read, summarize, cross-check facts",
+    "description": "Search, summarize, cross-check facts",
     "path": "core-research/SKILL.md",
-    "version": "1.0.0"
+    "version": "1.0"
   },
   {
     "id": "email-drafter",
-    "name": "Professional Email Drafter",
-    "description": "Write polite, structured emails",
+    "name": "Email Drafter",
+    "description": "Write professional emails",
     "path": "email-drafter/SKILL.md",
-    "version": "1.0.0"
+    "version": "1.0"
   },
   {
     "id": "task-planner",
-    "name": "Task & Project Planner",
-    "description": "Break goals into subtasks with priorities & deadlines",
+    "name": "Task Planner",
+    "description": "Break goals into subtasks",
     "path": "task-planner/SKILL.md",
-    "version": "1.0.0"
+    "version": "1.0"
   },
   {
     "id": "orchestrator",
     "name": "Sub-Agent Orchestrator",
-    "description": "Spawn, message, monitor sub-agents",
+    "description": "Spawn & coordinate agents",
     "path": "orchestrator/SKILL.md",
-    "version": "1.0.0"
+    "version": "1.0"
+  },
+  {
+    "id": "code-reviewer",
+    "name": "Code Reviewer",
+    "description": "Analyze code quality & security",
+    "path": "code-reviewer/SKILL.md",
+    "version": "1.0"
   }
 ]

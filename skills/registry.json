@@ -1,0 +1,44 @@
+[
+  {
+    "id": "modify-self",
+    "name": "Modify Self",
+    "description": "Allows the agent to update its own code or configuration.",
+    "path": "modify-self/SKILL.md"
+  },
+  {
+    "id": "browser-tools",
+    "name": "Browser Tools",
+    "description": "Tools for browsing the web, scraping content, and automating browser tasks.",
+    "path": "browser-tools/SKILL.md"
+  },
+  {
+    "id": "llm-secrets",
+    "name": "LLM Secrets",
+    "description": "Securely manage and access LLM API keys and credentials.",
+    "path": "llm-secrets/SKILL.md"
+  },
+  {
+    "id": "brave-search",
+    "name": "Brave Search",
+    "description": "Perform Brave search queries programmatically.",
+    "path": "brave-search/SKILL.md"
+  },
+  {
+    "id": "telegram",
+    "name": "Telegram Integration",
+    "description": "Interact with users via a Telegram bot.",
+    "path": "telegram/SKILL.md"
+  },
+  {
+    "id": "github-actions",
+    "name": "GitHub Actions Helper",
+    "description": "Skills for interacting with GitHub Actions workflows.",
+    "path": "github-actions/SKILL.md"
+  },
+  {
+    "id": "info-retrieval",
+    "name": "Info Retrieval",
+    "description": "Utilities to fetch and summarize information from external sources.",
+    "path": "info-retrieval/SKILL.md"
+  }
+]

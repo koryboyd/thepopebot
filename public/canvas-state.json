@@ -1,0 +1,10 @@
+{
+  "nodes": [
+    {"id": "1", "type": "input", "data": {"label": "Start"}, "position": {"x": 50, "y": 50}},
+    {"id": "2", "data": {"label": "Research"}, "position": {"x": 300, "y": 150}}
+  ],
+  "edges": [
+    {"id": "e1-2", "source": "1", "target": "2", "animated": true}
+  ],
+  "lastUpdated": "2026-02-28T16:00:00Z"
+}

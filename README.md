@@ -1,64 +1,127 @@
 # koryboyd/thepopebot
 
-Fork of [stephengpope/thepopebot](https://github.com/stephengpope/thepopebot) – **Local-First, Free & Auditable Variant** (WIP / Planning Phase)
+Fork of [stephengpope/thepopebot](https://github.com/stephengpope/thepopebot) – **Local-First, Free & Auditable Variant** (Work in Progress)
 
-**Status**: Early development – **not yet fully runnable locally**.  
-Many foundational pieces are in place (memory loading, skills registry, personality/rules files, heartbeat/reflection cron, basic orchestrator), but core changes (prompt injection, local job runner, conditional cloud bypass) are still needed.
+**Current status (28 Feb 2026)**  
+Early development – many foundational pieces are committed, but **not yet a complete runnable local version**.  
+Core upstream cloud/GitHub Actions dependencies are still present. Patches are being collected to enable 100% local operation.
 
-**Goal**  
-Run Popebot **100% locally** (Ollama LLM + no GitHub Actions/cloud dependency) while preserving the original's strongest feature: **the repo itself is the agent** — every action = git commit, full audit trail, reversible changes.
+**Vision**  
+Run Popebot completely **offline/local** using Ollama (free, unlimited inference) while keeping the original's killer feature: **the repository itself is the agent** — every action produces git commits, full audit trail, reversible changes via git history.
 
-### Key Differences vs Upstream (stephengpope/thepopebot:main)
+### Comparison: This Fork vs Upstream (main branch)
 
-| Aspect                        | Original (upstream)                                      | This fork (local-first focus)                                      |
-|-------------------------------|----------------------------------------------------------|--------------------------------------------------------------------|
-| **LLM backend**               | Cloud APIs (Anthropic Claude, OpenAI, Google GenAI)     | Local Ollama (OpenAI-compatible) — free & unlimited queries        |
-| **Job execution**             | GitHub Actions (free tier minutes + concurrency limits) | Planned: local Docker + `act` or simple supervisor — no cloud cost |
-| **Compute cost**              | Free GitHub Actions (but limited minutes)               | Zero ongoing cost (only electricity + hardware)                    |
-| **Offline capability**        | Requires internet (webhooks, Actions, ngrok for local)  | Designed for full offline/local use (once patches complete)        |
-| **Audit trail**               | Git commits/PRs via GitHub                              | Same git-based audit + local visibility (stronger in some ways)    |
-| **Setup complexity**          | Wizard + GitHub PAT + secrets + ngrok                   | Simpler local `.env` + Docker Desktop + Ollama + Tailscale         |
-| **Windows 11 support**        | Possible but ngrok/GitHub-heavy                         | Explicit focus: Docker Desktop WSL 2 + native Ollama               |
+| Feature / Aspect              | Upstream (stephengpope/thepopebot)                          | This fork (local-first)                                      | Status in fork |
+|-------------------------------|-------------------------------------------------------------|--------------------------------------------------------------|----------------|
+| LLM backend                   | Cloud APIs (Claude, OpenAI, Google GenAI)                   | Local Ollama (OpenAI-compatible endpoint)                    | Planned – `.env` ready |
+| Job/Agent execution           | GitHub Actions workflows (minutes limited)                  | Local Docker + `act` or simple supervisor script             | Planned – no runner yet |
+| Compute cost                  | Free GitHub Actions (but finite)                            | Zero ongoing cost (hardware/electricity only)                | Achieved when complete |
+| Offline / local capability    | Requires internet (Actions, webhooks, ngrok)                | Full offline possible after patches                          | Partial (helpers added) |
+| Audit trail                   | Git commits/PRs via GitHub                                  | Same git-based + local visibility (potentially stronger)     | Preserved |
+| Memory persistence            | Not built-in (relies on LLM context)                        | Daily `.md` logs + long-term `MEMORY.md` + loader            | Implemented (lib/memory.js) |
+| Skills system                 | Basic shared skills dir                                     | Lazy-loaded registry + metadata injection                    | Implemented (registry.json + loader) |
+| Proactive loops               | Configurable via CRONS.json + Actions                       | Local heartbeat (30 min) + daily reflection (cron)           | Implemented (cron append) |
+| Sub-agents / orchestration    | Not native                                                  | Branch-based spawning + orchestrator stub                    | Skeleton added (orchestrator.js) |
+| Windows 11 support            | Possible but GitHub/ngrok heavy                             | Explicit focus (Docker Desktop WSL 2 + native Ollama)        | Guide added below |
 
-### Current Progress (what's already added)
+### What's Already Added (committed)
 
-- `config/PERSONALITY.md` + `LONG_TERM_RULES.md` → personality & hard rules
-- `skills/registry.json` + example `SKILL.md` files → lazy-loading foundation
-- `lib/memory.js` → loads recent daily logs + long-term memory
+- `config/PERSONALITY.md` + `LONG_TERM_RULES.md` → inject personality & hard rules
+- `skills/registry.json` + example `SKILL.md` files → foundation for lazy loading
+- `lib/memory.js` → `loadRecentMemory()` helper (recent logs + long-term)
 - `lib/skills/loader.js` → compact skill list for prompts
-- `lib/agents/orchestrator.js` → basic sub-agent branch spawning stub
-- `lib/cron.js` extended → 30-min heartbeat + daily reflection placeholder
-- `.env.example` → Ollama-friendly defaults + `RUN_LOCALLY=true` flag
+- `lib/agents/orchestrator.js` → basic sub-agent branch creation stub
+- `lib/cron.js` extended → 30-minute heartbeat + 3 AM reflection placeholder
+- `.env.example` → Ollama defaults + `RUN_LOCALLY=true` flag
 - `docs/LOCAL-FIRST-VISION.md` → roadmap & motivation
+- Updated README with local vision & comparison
 
-### Planned Next Steps (WIP / Roadmap)
+### Remaining Roadmap & Next Patches Needed
 
-<details>
-<summary>Click to expand roadmap</summary>
+1. **Prompt injection**  
+   Patch the prompt builder (likely `lib/ai/index.js` or equivalent) to include:
+   ```xml
+   <memory>
+   ${await loadRecentMemory()}
+   </memory>
 
-1. **Prompt injection** — patch `lib/ai/` to include `<memory>` + `<skills>` tags
-2. **Local job runner** — add `local-supervisor.js` + `act` integration (replace GitHub API calls)
-3. **Conditional logic** — wrap cloud-dependent code in `if (!process.env.RUN_LOCALLY)`
-4. **Auto-commit hooks** — optional git commit after heartbeat/reflection
-5. **Windows guide** → detailed Docker Desktop + Ollama + Tailscale steps
-6. **Canvas stub** → `canvas-state.json` format + simple Next.js render
-7. **More skills & sub-agents** → expand registry & templates
+   <skills>
+   ${await getCompactSkillList()}
+   </skills>
 
-</details>
+Local job runner
+Create local-supervisor.js (watch for new job branches, run act locally, commit results).
+Replace GitHub API calls in job creation/PR logic with conditional simple-git operations.
+Conditional logic for local mode
+Wrap cloud-dependent code:JavaScriptif (process.env.RUN_LOCALLY === 'true') {
+  // use local git / Ollama / act
+} else {
+  // original GitHub Actions / cloud LLM path
+}
+Auto-commit hooks (optional)
+After heartbeat/reflection append → git add memory && git commit -m "chore: daily heartbeat/reflection"
+Windows 11 detailed guide
+See below.
+Canvas stub
+Create canvas-state.json example + simple Next.js component to render it (React Flow / SVG).
+Expand skills & sub-agents
+Add more SKILL.md files + agent templates in agents/templates/.
 
-## Installation & Setup (Local-First Variant – WIP)
+Installation & Local Setup Guide (Windows 11 – Work in Progress)
+Prerequisites
 
-### Prerequisites (Windows 11 recommended)
+Windows 11 (22H2 or newer)
+Git for Windows
+Node.js 18+ (LTS)
+Docker Desktop (WSL 2 backend recommended)
+Ollama native Windows app
+Tailscale (free, for secure remote access from phone)
 
-- Windows 11 (build 22H2 or later)
-- Git for Windows
-- Node.js ≥ 18 (LTS) → https://nodejs.org
-- Docker Desktop (WSL 2 backend) → https://www.docker.com/products/docker-desktop
-- Ollama → https://ollama.com/download/windows (native installer)
-- Tailscale (optional – secure remote access) → https://tailscale.com/download/windows
-- A decent GPU (RTX 3060+ recommended for 32B models) or at least 32 GB RAM
+Step-by-Step Setup
+
+Clone the repoPowerShellgit clone https://github.com/koryboyd/thepopebot.git
+cd thepopebot
+Create .env file
+Copy .env.example → .env and adjust:envLLM_PROVIDER=openai
+OPENAI_API_KEY=ollama
+OPENAI_BASE_URL=http://host.docker.internal:11434/v1
+
+RUN_LOCALLY=true
+GITHUB_ACTIONS=false
+Install & start Ollama
+Download & run OllamaSetup.exe from https://ollama.com/download/windows
+Pull a strong model:PowerShellollama pull qwen2.5-coder:32b-instruct-q5_K_M
+# or lighter: qwen2.5-coder:14b-instruct-q5_K_M
+Start Ollama (tray icon or ollama serve)
+Fix Docker access (if needed):PowerShell[Environment]::SetEnvironmentVariable("OLLAMA_HOST", "0.0.0.0", "Machine")Restart Ollama.
+(Future) Run the app locally
+Once prompt & job patches are complete:PowerShellnpm install
+npm run dev                  # starts Next.js event handler
+# In another terminal:
+node local-supervisor.js     # (not yet added)Access: http://localhost:3000 (web chat)
+Remote access (Telegram / phone)
+Install Tailscale → sign in
+Get your Tailscale IP (100.x.x.x)
+Update webhook: https://100.x.x.x:3000/api/telegram (use Caddy/Nginx for HTTPS if needed)
+
+Troubleshooting Windows-specific
+Ollama not reachable from Docker → check OLLAMA_HOST var & restart
+Docker won't start → Settings → Resources → WSL Integration → enable distro
+Firewall blocking → Allow ports 3000, 11434 in Windows Defender (private network)
 
 
+Contributing & Next Steps
+PRs very welcome — especially for:
+
+Prompt builder patch (memory + skills injection)
+Local job supervisor & act integration
+Conditional RUN_LOCALLY logic
+Auto-commit after cron tasks
+Canvas JSON + renderer
+More skills / sub-agent templates
+
+License: MIT (same as upstream)
+Upstream repo: https://github.com/stephengpope/thepopebot
 ## How It Works
 
 ```
