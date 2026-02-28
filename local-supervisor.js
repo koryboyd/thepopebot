@@ -1,13 +1,11 @@
 #!/usr/bin/env node
-// local-supervisor.js
-// ──────────────────────────────────────────────────────────────────────────────
-// Watches the local git repo for new job/* or sub-* branches and executes them
-// locally using `act` (local GitHub Actions runner).
-// Run with: node local-supervisor.js
-// Requires: act installed (winget install nektos.act  or  https://github.com/nektos/act)
+// local-supervisor.js (deprecated)
+// The full supervisor implementation has moved to
+// bin/local-supervisor-standalone.js. Run that script
+// instead of this one.
 
-const { execSync } = require('child_process');
-const path = require('path');
+console.log('This file is deprecated. Please run: node bin/local-supervisor-standalone.js');
+process.exit(0);
 
 const POLL_INTERVAL_MS = 12000;               // check every 12 seconds
 const WORKFLOW_PATH = '.github/workflows/run-job.yml';  // adjust if your workflow file has a different name

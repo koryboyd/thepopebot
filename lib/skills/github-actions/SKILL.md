@@ -1,5 +1,5 @@
 ---
-name: GitHub Actions Helper
+name: github-actions
 description: "Skills for interacting with GitHub Actions workflows."
 ---
 

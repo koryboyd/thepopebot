@@ -16,7 +16,7 @@ After (high level)
 -------------------
 - Skills registry and initial skill documents were added and wired into the prompt pipeline.
 - Memory persistence was made auditable: heartbeat and daily reflection functions append to disk and commit changes to git when `RUN_LOCALLY=true`.
-- Job creation supports a local path that creates a `job/*` branch and writes job configuration and logs locally; the `local-supervisor` picks up these branches and executes them.
+- Job creation supports a local path that creates a `job/*` branch and writes job configuration and logs locally; the `local-supervisor` (now `bin/local-supervisor-standalone.js`) picks up these branches and executes them.
 
 Key changes (concise)
 ---------------------
@@ -45,7 +45,7 @@ How to validate locally
 ------------------------
 1. Ensure `RUN_LOCALLY=true` in `.env`.
 2. Start the event handler: `npm run dev`.
-3. Start the supervisor: `node local-supervisor.js`.
+3. Start the supervisor: `node bin/local-supervisor-standalone.js`.
 4. Create a test job via the web UI or an API call. Confirm that a `job/*` branch is created and results are committed.
 
 Next steps

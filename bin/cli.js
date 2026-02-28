@@ -208,7 +208,7 @@ async function init() {
   }
 
   // Create default skill activation symlinks
-  const defaultSkills = ['browser-tools', 'llm-secrets', 'modify-self'];
+  const defaultSkills = ['utilities']; // consolidated utilities skill replaces browser-tools, llm-secrets, modify-self
   const activeDir = path.join(cwd, 'skills', 'active');
   fs.mkdirSync(activeDir, { recursive: true });
   for (const skill of defaultSkills) {

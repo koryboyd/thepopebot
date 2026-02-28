@@ -1,5 +1,8 @@
 # Local-First Features Implementation Guide
 
+> **Note:** This document is a historical implementation guide created during early development. Many of the originally separate skills (modify-self, browser-tools, llm-secrets) have since been
+> consolidated into a single `utilities` skill. See `skills/utilities/SKILL.md` and the README for the current state.
+
 **Date:** 28 February 2026  
 **Status:** All core features implemented and ready for integration
 

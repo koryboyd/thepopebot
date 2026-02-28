@@ -1,5 +1,5 @@
 ---
-name: Brave Search
+name: brave-search
 description: "Perform Brave search queries and fetch web content."
 ---
 

@@ -1,5 +1,5 @@
 ---
-name: Telegram Integration
+name: telegram
 description: "Interact with users via a Telegram bot."
 ---
 

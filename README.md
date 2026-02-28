@@ -19,7 +19,7 @@ Run Popebot completely **offline/local** using Ollama (free, unlimited inference
 | Offline / local capability    | Requires internet (Actions, webhooks, ngrok)                | Full offline possible after patches                          | Partial (helpers added) |
 | Audit trail                   | Git commits/PRs via GitHub                                  | Same git-based + local visibility (potentially stronger)     | Preserved |
 | Memory persistence            | Not built-in (relies on LLM context)                        | Daily `.md` logs + long-term `MEMORY.md` + loader            | Implemented (lib/memory.js) |
-| Skills system                 | Basic shared skills dir                                     | Lazy-loaded registry + metadata injection                    | Implemented (registry.json + loader) |
+| Skills system                 | Basic shared skills dir                                     | Lazy-loaded registry + metadata injection (consolidated utilities skill) | Implemented (registry.json + loader) |
 | Proactive loops               | Configurable via CRONS.json + Actions                       | Local heartbeat (30 min) + daily reflection (cron)           | Implemented (cron append) |
 | Sub-agents / orchestration    | Not native                                                  | Branch-based spawning + orchestrator stub                    | Skeleton added (orchestrator.js) |
 | Windows 11 support            | Possible but GitHub/ngrok heavy                             | Explicit focus (Docker Desktop WSL 2 + native Ollama)        | Guide added below |
@@ -87,10 +87,10 @@ Start the Next.js event handler (development mode):
 npm run dev
 ```
 
-Run the local job supervisor in a separate terminal (this watches for local `job/*` branches and executes them):
+Run the local job supervisor in a separate terminal (this watches for local `job/*` branches and executes them). For full functionality use the standalone script which also logs and commits artifacts:
 
 ```bash
-node local-supervisor.js
+node ./bin/local-supervisor-standalone.js
 ```
 
 Configuration highlights

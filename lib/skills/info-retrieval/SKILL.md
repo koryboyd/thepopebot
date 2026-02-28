@@ -1,5 +1,5 @@
 ---
-name: Info Retrieval
+name: info-retrieval
 description: "Utilities to fetch and summarize information from external sources."
 ---
 

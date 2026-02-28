@@ -1,5 +1,7 @@
 # ✨ Local-First Features - Complete Implementation
 
+> **Historical:** Early reference document. Skill definitions have been updated since creation; see `skills/utilities/SKILL.md`.
+
 **Status:** All features implemented and integrated ✅
 
 ---
@@ -10,8 +12,8 @@ Based on your requirement that **"all those features need to be functional,"** I
 
 ### 1️⃣ Skills Registry (`skills/registry.json` + SKILL.md files)
 - **Problem:** Skills directory missing; loader had no source
-- **Solution:** Created `skills/` with 7-item registry + SKILL.md for each
-- **Impact:** Agent now knows about 7 available skills; can list them in prompts
+- **Solution:** Created `skills/` with registry and a consolidated `utilities` skill
+- **Impact:** Agent now knows about available capabilities; can list them in prompts (utilities replaces modify-self, browser-tools, llm-secrets)
 
 ### 2️⃣ Auto-Commit on Heartbeat (`lib/cron.js`)
 - **Problem:** Heartbeat logged but never committed; no persistence
@@ -50,9 +52,7 @@ Based on your requirement that **"all those features need to be functional,"** I
 ```
 skills/
 ├── registry.json                     (7-item skill registry)
-├── modify-self/SKILL.md
-├── browser-tools/SKILL.md
-├── llm-secrets/SKILL.md
+├── utilities/SKILL.md                (consolidated utilities skill)
 ├── brave-search/SKILL.md
 ├── telegram/SKILL.md
 ├── github-actions/SKILL.md

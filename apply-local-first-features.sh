@@ -12,14 +12,12 @@ echo ""
 # 1. Skills Registry
 echo "📦 1/4: Committing skills registry..."
 git add skills/
-git commit -m "feat: initialize skills registry with 7 core skills
+git commit -m "feat: initialize skills registry with utilities
 
 - Create skills/ directory structure (was missing)
-- Add registry.json with 7 core skill definitions
-- Add SKILL.md files for each skill:
-  - modify-self: Allows the agent to update its own code
-  - browser-tools: Web browsing and automation
-  - llm-secrets: Secure API key management
+- Add registry.json with a utilities entry consolidating modify-self, browser-tools, llm-secrets
+- Add SKILL.md files for:
+  - utilities: combined utilities skill (self-modification, browser automation, secret management)
   - brave-search: Web search via Brave Search API
   - telegram: Telegram bot integration
   - github-actions: GitHub Actions workflow helpers

@@ -10,9 +10,7 @@ All major functional components have been added to make the repository's local-f
 
 **Files Created:**
 - `skills/registry.json` — 7-item registry with skill metadata
-- `skills/modify-self/SKILL.md`
-- `skills/browser-tools/SKILL.md`
-- `skills/llm-secrets/SKILL.md`
+- `skills/utilities/SKILL.md` (consolidates modify-self, browser-tools, llm-secrets)
 - `skills/brave-search/SKILL.md`
 - `skills/telegram/SKILL.md`
 - `skills/github-actions/SKILL.md`
