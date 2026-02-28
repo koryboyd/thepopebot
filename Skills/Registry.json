@@ -1,0 +1,30 @@
+[
+  {
+    "id": "core-research",
+    "name": "Web & Knowledge Research",
+    "description": "Search, read, summarize, cross-check facts",
+    "path": "core-research/SKILL.md",
+    "version": "1.0.0"
+  },
+  {
+    "id": "email-drafter",
+    "name": "Professional Email Drafter",
+    "description": "Write polite, structured emails",
+    "path": "email-drafter/SKILL.md",
+    "version": "1.0.0"
+  },
+  {
+    "id": "task-planner",
+    "name": "Task & Project Planner",
+    "description": "Break goals into subtasks with priorities & deadlines",
+    "path": "task-planner/SKILL.md",
+    "version": "1.0.0"
+  },
+  {
+    "id": "orchestrator",
+    "name": "Sub-Agent Orchestrator",
+    "description": "Spawn, message, monitor sub-agents",
+    "path": "orchestrator/SKILL.md",
+    "version": "1.0.0"
+  }
+]
