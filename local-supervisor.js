@@ -1,7 +1,7 @@
-const cron = require("node-cron");
-const { getNextJob, completeJob } = require("./jobs");
-const { runAgentCycle } = require("./agent");
-const { log } = require("./logger");
+import cron from 'node-cron';
+import { getNextJob, completeJob } from './jobs.js';
+import { runAgent } from './lib/ai/agent.js';
+import { log, error } from './logger.js';
 
 let running = false;
 
@@ -12,26 +12,32 @@ async function processJobs() {
   try {
     let job;
     while ((job = await getNextJob())) {
-      log("JOB_START", job.id);
+      log('SUPERVISOR', `Processing job ${job.id}: ${job.title}`, { jobId: job.id });
 
       try {
-        const result = await runAgentCycle(job);
+        const result = await runAgent(job);
         await completeJob(job.id, result);
-        log("JOB_COMPLETE", job.id);
+        log('SUPERVISOR', `Job ${job.id} completed successfully`, { jobId: job.id, result });
       } catch (err) {
-        log("JOB_FAIL", err.message);
+        error('SUPERVISOR', `Job ${job.id} failed`, err);
+        await completeJob(job.id, { error: err.message });
       }
     }
+  } catch (processErr) {
+    error('SUPERVISOR', 'Job processing error', processErr);
   } finally {
     running = false;
   }
 }
 
-function startSupervisor() {
-  log("SUPERVISOR", "Local supervisor online");
+export function startSupervisor() {
+  log('SUPERVISOR', 'Local supervisor online');
 
-  cron.schedule("*/1 * * * *", processJobs); // heartbeat
+  // Check for jobs every 1 minute
+  cron.schedule('*/1 * * * *', processJobs);
+  
+  // Run immediately on startup
   processJobs();
 }
 
-module.exports = { startSupervisor };
+export { processJobs };
