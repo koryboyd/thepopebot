@@ -67,6 +67,25 @@ Create canvas-state.json example + simple Next.js component to render it (React 
 Expand skills & sub-agents
 Add more SKILL.md files + agent templates in agents/templates/.
 
+Local‑First Operation (offline mode)
+-----------------------------------
+
+When you set `RUN_LOCALLY=true` the event handler avoids all external
+network dependencies:
+
+* **Job creation** writes the job config and creates a `job/*` git branch
+  locally instead of calling GitHub.  `createJob()` autodetects the mode.
+* **Job status** (used by chat tools and the API) scans local branches and
+  reports them; there is no in‑progress/queued lookup via GitHub.
+* **Job logs** are read directly from `logs/<jobId>` if available.
+* **Version checks** and release‑note lookups are skipped completely.
+* Any attempt to call `githubApi()` in local mode throws, making mistakes
+  obvious.
+
+With these guards the entire system can run completely offline with Ollama
+and `act`—no GH token, no network, no webhooks.  The original cloud-based
+behaviour is preserved when `RUN_LOCALLY` is unset or `false`.
+
 Installation & Local Setup Guide (Windows 11 – Work in Progress)
 Prerequisites
 

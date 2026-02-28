@@ -33,6 +33,8 @@
     "build": "esbuild lib/chat/components/*.jsx lib/chat/components/**/*.jsx --outdir=lib/chat/components --format=esm --jsx=automatic --outbase=lib/chat/components",
     "prepublishOnly": "npm run build",
     "local": "bash bin/local.sh",
+    "oc": "node ./bin/oc-cli.js",
+    "doctor": "node ./bin/oc-cli.js doctor",
     "postinstall": "node -e \"import('./bin/postinstall.js').catch(()=>{})\"",
     "db:generate": "drizzle-kit generate",
     "db:studio": "drizzle-kit studio",

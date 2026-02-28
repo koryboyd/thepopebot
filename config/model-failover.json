@@ -1,0 +1,11 @@
+{
+  "providers": [
+    { "id": "ollama", "type": "local", "priority": 10 },
+    { "id": "local-llm-2", "type": "local", "priority": 8 },
+    { "id": "openai", "type": "remote", "priority": 1 }
+  ],
+  "rotation": {
+    "rotateOnError": true,
+    "retryLimit": 2
+  }
+}
