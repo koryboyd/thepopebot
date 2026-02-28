@@ -105,12 +105,82 @@ Security and auditability
 - Pre-commit: A `.pre-commit-config.yaml` is provided to integrate `detect-secrets` and formatting hooks. Enable it locally to prevent accidental secret leaks.
 - Sandboxing: Use `lib/sandbox.js` to execute untrusted or third-party skill code inside isolated Docker containers with restricted network access.
 
-Recommended workflow
---------------------
-1. Enable `RUN_LOCALLY=true` in your `.env` during initial setup and testing.  
-2. Start the event handler and the local supervisor.  
-3. Create a test job via the web UI or API and confirm the supervisor picks it up and commits results to a `job/*` branch.  
-4. Review commits and logs in the `logs/` directory to verify audit trail.
+Make features functional — end-to-end (local)
+--------------------------------------------
+Follow these steps to enable and validate the full local-first flow on a single machine. This sequence makes the local supervisor, cron heartbeats, skill loading, and memory commits operate together.
+
+1) Configure environment
+
+```bash
+cp .env.example .env
+# Edit .env and set:
+# RUN_LOCALLY=true
+# OPENAI_BASE_URL=http://host.docker.internal:11434/v1   # if using Ollama
+```
+
+2) Start the local LLM (optional but recommended for full agent jobs)
+
+- Install and run Ollama per their instructions. Verify with:
+
+```bash
+# Ollama should respond at the configured URL
+curl -sS ${OPENAI_BASE_URL:-http://localhost:11434}/v1/models || true
+```
+
+3) Start the event handler (web UI)
+
+```bash
+npm run dev
+```
+
+4) Start the local supervisor (standalone — safe fallback)
+
+```bash
+# preferred: runs and commits job artifacts
+node ./bin/local-supervisor-standalone.js
+# or run once for a single sweep:
+node ./bin/local-supervisor-standalone.js --once
+```
+
+Notes:
+- If you have `act` installed and a compatible `run-job` workflow, the supervisor will attempt to run the GitHub Actions workflow locally. If `act` is not available, the supervisor writes safe stub outputs and commits logs to `logs/<jobId>/` so the job lifecycle completes locally and is auditable.
+
+5) Create a test job
+
+You can create a job using the web UI or from the node REPL. Example using the local `createJob` helper:
+
+```bash
+node -e "(async()=>{ const { createJob } = await import('./lib/tools/create-job.js'); const j = await createJob('Local integration test job'); console.log('created', j); })()"
+```
+
+This should create a `job/<id>` branch. The supervisor will detect it and create `logs/<id>` and a commit.
+
+6) Validate results
+
+- Inspect `git log --oneline` for commits titled `chore(local-supervisor): processed job/<id>` or similar.
+- Inspect `logs/<id>/session.jsonl` and `logs/<id>/output.txt` for details.
+
+7) Optional: push to remote
+
+If you want to persist changes to a remote repository, push the branch and open a PR as you normally would:
+
+```bash
+git push origin --all
+```
+
+Troubleshooting
+---------------
+- Supervisor writes to `logs/` and commits locally. If commits fail due to user config, ensure your local git identity is set (name/email) and you have write access:
+
+```bash
+git config user.name "Your Name"
+git config user.email "you@example.com"
+```
+
+- If `act` fails, review `.github/workflows/run-job.yml` for inputs and required secrets; the supervisor will still create a safe stub if `act` cannot run.
+
+- To disable local supervisor and return to upstream behavior, set `RUN_LOCALLY=false` and use standard GitHub Actions workflows.
+
 
 Developer notes
 ---------------
