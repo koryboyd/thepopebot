@@ -1,0 +1,4 @@
+# Daily memory logs stored here
+# Format: YYYY-MM-DD.md
+# Heartbeat cron appends entries every 30 minutes
+# Reflection cron auto-commits long-term insights

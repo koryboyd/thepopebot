@@ -1,0 +1,7 @@
+# Job logs stored here
+# Structure: logs/{jobId}/
+#   - job.config.json (job metadata)
+#   - session.jsonl (execution logs)
+#   - result.json (final results)
+#   - done (marker file when job is complete)
+# Supervisor detects and processes jobs from here
