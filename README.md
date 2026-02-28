@@ -1,33 +1,63 @@
-# Kory's Enhanced Fork – Local-First, Free & Auditable Variant (Planning / WIP)
+# koryboyd/thepopebot
 
-**Status**: Brainstorming & preparation phase — not yet runnable.  
-Goal: Make this fork 100% local-run capable (Ollama + no GitHub Actions dependency) while preserving full git auditability.
+Fork of [stephengpope/thepopebot](https://github.com/stephengpope/thepopebot) – **Local-First, Free & Auditable Variant** (WIP / Planning Phase)
 
-**Planned additions (security-preserving, zero-cost focus)**:
-- Local Ollama integration (OpenAI-compatible endpoint at http://host.docker.internal:11434/v1)
-- Persistent memory: daily Markdown logs + reflection summaries
-- Lazy-loaded skills registry + starter skills (research, email drafting, task planning, orchestrator)
-- Proactive heartbeat & daily/weekly self-reflection loops (via local cron)
-- Sub-agents / multi-agent coordination (short-lived local branches or supervisor)
-- Lightweight canvas state (JSON commits → simple frontend render)
-- Local job execution: replace GitHub Actions with `act` + simple supervisor script
-- Full Windows 11 compatibility notes (Docker Desktop WSL 2, native Ollama, Tailscale)
+**Status**: Early development – **not yet fully runnable locally**.  
+Many foundational pieces are in place (memory loading, skills registry, personality/rules files, heartbeat/reflection cron, basic orchestrator), but core changes (prompt injection, local job runner, conditional cloud bypass) are still needed.
 
-**Why this fork?**  
-Help users run Popebot completely free/unlimited on their own hardware (Windows/Linux/Mac) without GitHub minutes limits or cloud LLM costs, while keeping the core "repo = agent" audit trail.
+**Goal**  
+Run Popebot **100% locally** (Ollama LLM + no GitHub Actions/cloud dependency) while preserving the original's strongest feature: **the repo itself is the agent** — every action = git commit, full audit trail, reversible changes.
 
-Contributions welcome — issues/PRs for local patches especially appreciated!
+### Key Differences vs Upstream (stephengpope/thepopebot:main)
 
-See original repo: https://github.com/stephengpope/thepopebot
-Original Readme # Why thepopebot?
+| Aspect                        | Original (upstream)                                      | This fork (local-first focus)                                      |
+|-------------------------------|----------------------------------------------------------|--------------------------------------------------------------------|
+| **LLM backend**               | Cloud APIs (Anthropic Claude, OpenAI, Google GenAI)     | Local Ollama (OpenAI-compatible) — free & unlimited queries        |
+| **Job execution**             | GitHub Actions (free tier minutes + concurrency limits) | Planned: local Docker + `act` or simple supervisor — no cloud cost |
+| **Compute cost**              | Free GitHub Actions (but limited minutes)               | Zero ongoing cost (only electricity + hardware)                    |
+| **Offline capability**        | Requires internet (webhooks, Actions, ngrok for local)  | Designed for full offline/local use (once patches complete)        |
+| **Audit trail**               | Git commits/PRs via GitHub                              | Same git-based audit + local visibility (stronger in some ways)    |
+| **Setup complexity**          | Wizard + GitHub PAT + secrets + ngrok                   | Simpler local `.env` + Docker Desktop + Ollama + Tailscale         |
+| **Windows 11 support**        | Possible but ngrok/GitHub-heavy                         | Explicit focus: Docker Desktop WSL 2 + native Ollama               |
 
-**The repository IS the agent** — Every action your agent takes is a git commit. You can see exactly what it did, when, and why. If it screws up, revert it. Want to clone your agent? Fork the repo — code, personality, scheduled jobs, full history, all of it goes with your fork.
+### Current Progress (what's already added)
 
-**Free compute, built in** — Every GitHub account comes with free cloud computing time. thepopebot uses that to run your agent. One task or a hundred in parallel — the compute is already included.
+- `config/PERSONALITY.md` + `LONG_TERM_RULES.md` → personality & hard rules
+- `skills/registry.json` + example `SKILL.md` files → lazy-loading foundation
+- `lib/memory.js` → loads recent daily logs + long-term memory
+- `lib/skills/loader.js` → compact skill list for prompts
+- `lib/agents/orchestrator.js` → basic sub-agent branch spawning stub
+- `lib/cron.js` extended → 30-min heartbeat + daily reflection placeholder
+- `.env.example` → Ollama-friendly defaults + `RUN_LOCALLY=true` flag
+- `docs/LOCAL-FIRST-VISION.md` → roadmap & motivation
 
-**Self-evolving** — The agent modifies its own code through pull requests. Every change is auditable, every change is reversible. You stay in control.
+### Planned Next Steps (WIP / Roadmap)
 
----
+<details>
+<summary>Click to expand roadmap</summary>
+
+1. **Prompt injection** — patch `lib/ai/` to include `<memory>` + `<skills>` tags
+2. **Local job runner** — add `local-supervisor.js` + `act` integration (replace GitHub API calls)
+3. **Conditional logic** — wrap cloud-dependent code in `if (!process.env.RUN_LOCALLY)`
+4. **Auto-commit hooks** — optional git commit after heartbeat/reflection
+5. **Windows guide** → detailed Docker Desktop + Ollama + Tailscale steps
+6. **Canvas stub** → `canvas-state.json` format + simple Next.js render
+7. **More skills & sub-agents** → expand registry & templates
+
+</details>
+
+## Installation & Setup (Local-First Variant – WIP)
+
+### Prerequisites (Windows 11 recommended)
+
+- Windows 11 (build 22H2 or later)
+- Git for Windows
+- Node.js ≥ 18 (LTS) → https://nodejs.org
+- Docker Desktop (WSL 2 backend) → https://www.docker.com/products/docker-desktop
+- Ollama → https://ollama.com/download/windows (native installer)
+- Tailscale (optional – secure remote access) → https://tailscale.com/download/windows
+- A decent GPU (RTX 3060+ recommended for 32B models) or at least 32 GB RAM
+
 
 ## How It Works
 
