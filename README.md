@@ -98,11 +98,16 @@ Configuration highlights
 - `RUN_LOCALLY` (environment): When `true`, the code paths that would call remote GitHub APIs are replaced with local git operations and file-based logging. This is a safety measure to prevent network interactions during local testing.
 - `config/CRONS.json`: Cron definitions for scheduled jobs. Local heartbeat and reflection cron entries are implemented to persist memory and commit it to git.
 - `skills/registry.json`: Canonical registry of available skills. The agent loads this list to include available capabilities in prompts.
-
+- `lib/openclaw/gateway.js`: Optional multi-channel gateway scaffold. Use `createDefaultGateway()` to auto-register adapters (currently only Telegram).
 Security and auditability
 -------------------------
 - Secrets: Do not commit secret values. Use `.env` and repository secret management for any remote deployments.
 - Pre-commit: A `.pre-commit-config.yaml` is provided to integrate `detect-secrets` and formatting hooks. Enable it locally to prevent accidental secret leaks.
+  ```bash
+  pip install pre-commit detect-secrets
+  pre-commit install
+  ```
+- Formatting: Run Prettier to tidy changed files, e.g.: `npx prettier --write "**/*.{js,jsx,json,md}"`.
 - Sandboxing: Use `lib/sandbox.js` to execute untrusted or third-party skill code inside isolated Docker containers with restricted network access.
 
 Make features functional — end-to-end (local)

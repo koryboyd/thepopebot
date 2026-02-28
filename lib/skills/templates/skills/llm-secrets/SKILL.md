@@ -1,6 +1,6 @@
 ---
 name: llm-secrets
-description: List available LLM-accessible credentials. Use when you need API keys, passwords, or other secrets that have been made available to you.
+description: "(Deprecated) List available LLM-accessible credentials. Use when you need API keys, passwords, or other secrets that have been made available to you."
 ---
 
 # List Available Secrets

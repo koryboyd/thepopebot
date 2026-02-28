@@ -3,6 +3,7 @@ import { createJob } from '../lib/tools/create-job.js';
 import { setWebhook } from '../lib/tools/telegram.js';
 import { getJobStatus, fetchJobLog } from '../lib/tools/github.js';
 import { getTelegramAdapter } from '../lib/channels/index.js';
+import { createDefaultGateway } from '../lib/openclaw/gateway.js';
 import { chat, summarizeJob } from '../lib/ai/index.js';
 import { createNotification } from '../lib/db/notifications.js';
 import { loadTriggers } from '../lib/triggers.js';
@@ -10,6 +11,26 @@ import { verifyApiKey } from '../lib/db/api-keys.js';
 
 // Bot token from env, can be overridden by /telegram/register
 let telegramBotToken = null;
+
+// optional gateway for multi-channel support
+let _gateway = null;
+async function getGateway() {
+  if (!_gateway) {
+    _gateway = await createDefaultGateway();
+    // wire gateway event -> processor
+    _gateway.on('message', async (msg) => {
+      try {
+        const adapter = _gateway.adapters.get(msg.source);
+        if (adapter) {
+          await processChannelMessage(adapter, msg);
+        }
+      } catch (e) {
+        console.error('[gateway] failed to process message event', e);
+      }
+    });
+  }
+  return _gateway;
+}
 
 // Cached trigger firing function (initialized on first request)
 let _fireTriggers = null;
@@ -116,14 +137,13 @@ async function handleTelegramWebhook(request) {
   const botToken = getTelegramBotToken();
   if (!botToken) return Response.json({ ok: true });
 
-  const adapter = getTelegramAdapter(botToken);
+  const gateway = await getGateway();
+  const adapter = gateway.adapters.get('telegram') || getTelegramAdapter(botToken);
   const normalized = await adapter.receive(request);
   if (!normalized) return Response.json({ ok: true });
 
-  // Process message asynchronously (don't block the webhook response)
-  processChannelMessage(adapter, normalized).catch((err) => {
-    console.error('Failed to process message:', err);
-  });
+  // delegate to gateway event emitter (it also commits logs etc.)
+  gateway.emit('message', { source: 'telegram', ...normalized });
 
   return Response.json({ ok: true });
 }

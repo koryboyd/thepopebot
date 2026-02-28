@@ -3,9 +3,10 @@ name: browser-tools
 description: Interactive browser automation via Chrome DevTools Protocol. Use when you need to interact with web pages, test frontends, or when user interaction with a visible browser is required.
 ---
 
-# Browser Tools
+# Browser Tools (deprecated)
 
-Chrome DevTools Protocol tools for agent-assisted web automation. These tools connect to Chrome running on `:9222` with remote debugging enabled.
+This template is deprecated. Use `skills/utilities` for browser-related helpers.
+The original browser‑tools modules may be removed in a future release.
 
 ## Setup
 
