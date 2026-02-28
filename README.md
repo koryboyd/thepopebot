@@ -30,407 +30,106 @@ Run Popebot completely **offline/local** using Ollama (free, unlimited inference
 - `skills/registry.json` + example `SKILL.md` files → foundation for lazy loading
 - `lib/memory.js` → `loadRecentMemory()` helper (recent logs + long-term)
 - `lib/skills/loader.js` → compact skill list for prompts
-- `lib/agents/orchestrator.js` → basic sub-agent branch creation stub
-- `lib/cron.js` extended → 30-minute heartbeat + 3 AM reflection placeholder
-- `.env.example` → Ollama defaults + `RUN_LOCALLY=true` flag
-- `docs/LOCAL-FIRST-VISION.md` → roadmap & motivation
-- Updated README with local vision & comparison
+## thepopebot — Local‑First Event Handler and Agent Framework
 
-### Remaining Roadmap & Next Patches Needed
+This repository is a fork of the upstream thepopebot project, adapted for a local-first, auditable, and self-hosted deployment model. The core design principle is that the repository serves as the source of truth and audit trail: actions that change state are recorded as git commits so changes are traceable and reversible.
 
-1. **Prompt injection**  
-   Patch the prompt builder (likely `lib/ai/index.js` or equivalent) to include:
-   ```xml
-   <memory>
-   ${await loadRecentMemory()}
-   </memory>
+Status
+------
+This fork provides scaffolding and safe-guards to run the event handler and agent infrastructure locally (offline) with an Ollama-compatible LLM and a local job runner. Some upstream features (GitHub Actions automation, hosted webhooks) remain available but are gated behind `RUN_LOCALLY` to avoid accidental network calls in local deployments.
 
-   <skills>
-   ${await getCompactSkillList()}
-   </skills>
+Key Design Points
+-----------------
+- Local-first: Operations can run entirely on a single machine when `RUN_LOCALLY=true`.
+- Auditable: All important state changes are persisted and committed to the local git repository.
+- Sandboxed execution: The repository includes a sandbox helper for running untrusted work inside a Docker container.
+- Extensible: A lightweight gateway scaffold is provided for adding multi-channel adapters (Telegram, Discord, Signal, etc.) in a controlled, optional manner.
 
-Local job runner
-Create local-supervisor.js (watch for new job branches, run act locally, commit results).
-Replace GitHub API calls in job creation/PR logic with conditional simple-git operations.
-Conditional logic for local mode
-Wrap cloud-dependent code:JavaScriptif (process.env.RUN_LOCALLY === 'true') {
-  // use local git / Ollama / act
-} else {
-  // original GitHub Actions / cloud LLM path
-}
-Auto-commit hooks (optional)
-After heartbeat/reflection append → git add memory && git commit -m "chore: daily heartbeat/reflection"
-Windows 11 detailed guide
-See below.
-Canvas stub
-Create canvas-state.json example + simple Next.js component to render it (React Flow / SVG).
-Expand skills & sub-agents
-Add more SKILL.md files + agent templates in agents/templates/.
+Quick links
+-----------
+- Configuration: [config/index.js](config/index.js)
+- Local mode guard: `RUN_LOCALLY` (see `.env.example`)
+- Memory utilities: [lib/memory.js](lib/memory.js)
+- Skills loader: [lib/skills/loader.js](lib/skills/loader.js)
+- OpenClaw-inspired gateway scaffold: [lib/openclaw/gateway.js](lib/openclaw/gateway.js)
 
-Local‑First Operation (offline mode)
------------------------------------
-
-When you set `RUN_LOCALLY=true` the event handler avoids all external
-network dependencies:
-
-* **Job creation** writes the job config and creates a `job/*` git branch
-  locally instead of calling GitHub.  `createJob()` autodetects the mode.
-* **Job status** (used by chat tools and the API) scans local branches and
-  reports them; there is no in‑progress/queued lookup via GitHub.
-* **Job logs** are read directly from `logs/<jobId>` if available.
-* **Version checks** and release‑note lookups are skipped completely.
-* Any attempt to call `githubApi()` in local mode throws, making mistakes
-  obvious.
-
-With these guards the entire system can run completely offline with Ollama
-and `act`—no GH token, no network, no webhooks.  The original cloud-based
-behaviour is preserved when `RUN_LOCALLY` is unset or `false`.
-
-Installation & Local Setup Guide (Windows 11 – Work in Progress)
 Prerequisites
+-------------
+- Node.js 18 or later
+- Git (command line)
+- Docker (for sandboxed execution and local job runner)
+- Optional: Ollama (local LLM server) or compatible inference provider
 
-Windows 11 (22H2 or newer)
-Git for Windows
-Node.js 18+ (LTS)
-Docker Desktop (WSL 2 backend recommended)
-Ollama native Windows app
-Tailscale (free, for secure remote access from phone)
+Installation (local-first)
+--------------------------
+1. Clone the repository and install dependencies:
 
-Step-by-Step Setup
-
-Clone the repoPowerShellgit clone https://github.com/koryboyd/thepopebot.git
+```bash
+git clone https://github.com/stephengpope/thepopebot.git
 cd thepopebot
-Create .env file
-Copy .env.example → .env and adjust:envLLM_PROVIDER=openai
-OPENAI_API_KEY=ollama
-OPENAI_BASE_URL=http://host.docker.internal:11434/v1
-
-RUN_LOCALLY=true
-GITHUB_ACTIONS=false
-Install & start Ollama
-Download & run OllamaSetup.exe from https://ollama.com/download/windows
-Pull a strong model:PowerShellollama pull qwen2.5-coder:32b-instruct-q5_K_M
-# or lighter: qwen2.5-coder:14b-instruct-q5_K_M
-Start Ollama (tray icon or ollama serve)
-Fix Docker access (if needed):PowerShell[Environment]::SetEnvironmentVariable("OLLAMA_HOST", "0.0.0.0", "Machine")Restart Ollama.
-(Future) Run the app locally
-Once prompt & job patches are complete:PowerShellnpm install
-npm run dev                  # starts Next.js event handler
-# In another terminal:
-node local-supervisor.js     # (not yet added)Access: http://localhost:3000 (web chat)
-Remote access (Telegram / phone)
-Install Tailscale → sign in
-Get your Tailscale IP (100.x.x.x)
-Update webhook: https://100.x.x.x:3000/api/telegram (use Caddy/Nginx for HTTPS if needed)
-
-Troubleshooting Windows-specific
-Ollama not reachable from Docker → check OLLAMA_HOST var & restart
-Docker won't start → Settings → Resources → WSL Integration → enable distro
-Firewall blocking → Allow ports 3000, 11434 in Windows Defender (private network)
-
-
-Contributing & Next Steps
-PRs very welcome — especially for:
-
-Prompt builder patch (memory + skills injection)
-Local job supervisor & act integration
-Conditional RUN_LOCALLY logic
-Auto-commit after cron tasks
-Canvas JSON + renderer
-More skills / sub-agent templates
-
-License: MIT (same as upstream)
-Upstream repo: https://github.com/stephengpope/thepopebot
-## How It Works
-
-```
-┌──────────────────────────────────────────────────────────────────────┐
-│                                                                      │
-│  ┌─────────────────┐         ┌─────────────────┐                     │
-│  │  Event Handler  │ ──1──►  │     GitHub      │                     │
-│  │  (creates job)  │         │ (job/* branch)  │                     │
-│  └────────▲────────┘         └────────┬────────┘                     │
-│           │                           │                              │
-│           │                           2 (triggers run-job.yml)       │
-│           │                           │                              │
-│           │                           ▼                              │
-│           │                  ┌─────────────────┐                     │
-│           │                  │  Docker Agent   │                     │
-│           │                  │  (runs Pi, PRs) │                     │
-│           │                  └────────┬────────┘                     │
-│           │                           │                              │
-│           │                           3 (creates PR)                 │
-│           │                           │                              │
-│           │                           ▼                              │
-│           │                  ┌─────────────────┐                     │
-│           │                  │     GitHub      │                     │
-│           │                  │   (PR opened)   │                     │
-│           │                  └────────┬────────┘                     │
-│           │                           │                              │
-│           │                           4a (auto-merge.yml)            │
-│           │                           4b (rebuild-event-handler.yml) │
-│           │                           │                              │
-│           5 (notify-pr-complete.yml / │                              │
-│           │  notify-job-failed.yml)   │                              │
-│           └───────────────────────────┘                              │
-│                                                                      │
-└──────────────────────────────────────────────────────────────────────┘
+npm install
 ```
 
-You interact with your bot via the web chat interface or Telegram (optional). The Event Handler creates a job branch. GitHub Actions spins up a Docker container with the Pi coding agent. The agent does the work, commits the results, and opens a PR. Auto-merge handles the rest. You get a notification when it's done.
-
----
-
-## Star History
-
-[![Star History Chart](https://api.star-history.com/svg?repos=stephengpope/thepopebot&type=date&legend=top-left)](https://www.star-history.com/#stephengpope/thepopebot&type=date&legend=top-left)
-
----
-
-## Get Started
-
-### Prerequisites
-
-| Requirement | Install |
-|-------------|---------|
-| **Node.js 18+** | [nodejs.org](https://nodejs.org) |
-| **npm** | Included with Node.js |
-| **Git** | [git-scm.com](https://git-scm.com) |
-| **GitHub CLI** | [cli.github.com](https://cli.github.com) |
-| **Docker + Docker Compose** | [docker.com](https://docs.docker.com/get-docker/) (installer requires admin password) |
-| **ngrok*** | [ngrok.com](https://ngrok.com/download) (free account + authtoken required) |
-
-*\*ngrok is only required for local installs without port forwarding. VPS/cloud deployments don't need it. [Sign up](https://dashboard.ngrok.com/signup) for a free ngrok account, then run `ngrok config add-authtoken <YOUR_TOKEN>` before starting setup.*
-
-### Two steps
-
-**Step 1** — Scaffold a new project:
+2. Copy the example environment file and edit values as required:
 
 ```bash
-mkdir my-agent && cd my-agent
-npx thepopebot@latest init
+cp .env.example .env
+# Edit .env to set RUN_LOCALLY=true and any LLM endpoints or keys
 ```
 
-This creates a Next.js project with configuration files, GitHub Actions workflows, and agent templates. You don't need to create a GitHub repo first — the setup wizard handles that.
+3. If you plan to run the agent fully offline, install and run a local LLM server (for example, Ollama) and ensure the `OPENAI_BASE_URL` / provider settings point to the local endpoint.
 
-**Step 2** — Run the setup wizard:
+Running the event handler (development)
+-------------------------------------
+Start the Next.js event handler (development mode):
 
 ```bash
-npm run setup
+npm run dev
 ```
 
-The wizard walks you through everything:
-- Checks prerequisites (Node.js, Git, GitHub CLI)
-- Creates a GitHub repository and pushes your initial commit
-- Creates a GitHub Personal Access Token (scoped to your repo)
-- Collects API keys (Anthropic required; OpenAI, Brave optional)
-- Sets GitHub repository secrets and variables
-- Generates `.env`
-- Builds the project and starts Docker for you
-
-**That's it.** Visit your APP_URL when the wizard finishes.
-
-- **Web Chat**: Visit your APP_URL to chat with your agent, create jobs, upload files
-- **Telegram** (optional): Run `npm run setup-telegram` to connect a Telegram bot
-- **Webhook**: Send a POST to `/api/create-job` with your API key to create jobs programmatically
-- **Cron**: Edit `config/CRONS.json` to schedule recurring jobs
-
-### Chat vs Agent LLM
-
-Your bot has two sides — a **chat** side and an **agent** side.
-
-**Chat** is the conversational part. When you talk to your bot in the web UI or Telegram, it uses the chat LLM. This runs on your server and responds in real time.
-
-**Agent** is the worker. When your bot needs to write code, modify files, or do a bigger task, it spins up a separate job that runs in a Docker container on GitHub. That job uses the agent LLM.
-
-By default, both use the same model. But during setup, you can choose different models for each — for example, a faster model for chat and a more capable one for agent jobs. The wizard asks "Would you like agent jobs to use different LLM settings?" and lets you pick.
-
-### Using a Claude Subscription (OAuth Token)
-
-If you have a Claude Pro ($20/mo) or Max ($100+/mo) subscription, you can use it to power your agent jobs instead of paying per API call. During setup, choose Anthropic as your agent provider and say yes when asked about a subscription.
-
-You'll need to generate a token:
+Run the local job supervisor in a separate terminal (this watches for local `job/*` branches and executes them):
 
 ```bash
-# Install Claude Code CLI (if you don't have it)
-npm install -g @anthropic-ai/claude-code
-
-# Generate your token (opens browser to log in)
-claude setup-token
+node local-supervisor.js
 ```
 
-Paste the token (starts with `sk-ant-oat01-`) into the setup wizard. Your agent jobs will now run through your subscription. Note that usage counts toward your Claude.ai limits, and you still need an API key for the chat side.
+Configuration highlights
+------------------------
+- `RUN_LOCALLY` (environment): When `true`, the code paths that would call remote GitHub APIs are replaced with local git operations and file-based logging. This is a safety measure to prevent network interactions during local testing.
+- `config/CRONS.json`: Cron definitions for scheduled jobs. Local heartbeat and reflection cron entries are implemented to persist memory and commit it to git.
+- `skills/registry.json`: Canonical registry of available skills. The agent loads this list to include available capabilities in prompts.
 
-See [Claude Code vs Pi](docs/CLAUDE_CODE_VS_PI.md) for more details on the two agent backends.
+Security and auditability
+-------------------------
+- Secrets: Do not commit secret values. Use `.env` and repository secret management for any remote deployments.
+- Pre-commit: A `.pre-commit-config.yaml` is provided to integrate `detect-secrets` and formatting hooks. Enable it locally to prevent accidental secret leaks.
+- Sandboxing: Use `lib/sandbox.js` to execute untrusted or third-party skill code inside isolated Docker containers with restricted network access.
 
-> **Local installs**: Your server needs to be reachable from the internet for GitHub webhooks and Telegram. On a VPS/cloud server, your APP_URL is just your domain. For local development, use [ngrok](https://ngrok.com) (`ngrok http 80`) or port forwarding to expose your machine.
->
-> **If your ngrok URL changes** (it changes every time you restart ngrok on the free plan), you must update APP_URL everywhere:
->
-> ```bash
-> # Update .env and GitHub variable in one command:
-> npx thepopebot set-var APP_URL https://your-new-url.ngrok.io
-> # If Telegram is configured, re-register the webhook:
-> npm run setup-telegram
-> ```
+Recommended workflow
+--------------------
+1. Enable `RUN_LOCALLY=true` in your `.env` during initial setup and testing.  
+2. Start the event handler and the local supervisor.  
+3. Create a test job via the web UI or API and confirm the supervisor picks it up and commits results to a `job/*` branch.  
+4. Review commits and logs in the `logs/` directory to verify audit trail.
 
----
+Developer notes
+---------------
+- New components and scaffolding were added to enable local-first operation. See [docs/OPENCLAW_ADOPTION.md](docs/OPENCLAW_ADOPTION.md) for the rationale and integration plan.
+- When adding new adapters or installers, ensure they record configuration changes by committing to git for traceability.
 
-## Manual Updating
+Contributing
+------------
+Contributions are welcome. Please open a pull request with focused changes and include unit or integration tests where applicable. Follow the repository's contribution guidelines and code style.
 
-**1. Update the package**
+License
+-------
+MIT
 
-```bash
-npm install thepopebot@latest
-```
+Contact and upstream
+--------------------
+Upstream project: https://github.com/stephengpope/thepopebot
+For questions or to report issues, open an issue in this repository.
 
-**2. Scaffold and update templates**
-
-```bash
-npx thepopebot init
-```
-
-For most people, that's it — `init` handles everything. It updates your project files, runs `npm install`, and updates `THEPOPEBOT_VERSION` in your local `.env`. See [Understanding `init`](#understanding-init) below for details on what this updates and how to handle custom changes.
-
-**3. Rebuild for local dev**
-
-```bash
-npm run build
-```
-
-**4. Commit and push**
-
-```bash
-git add -A && git commit -m "upgrade thepopebot to vX.X.X"
-git push
-```
-
-Pushing to `main` triggers the `rebuild-event-handler.yml` workflow on your server. It detects the version change, runs `thepopebot init`, updates `THEPOPEBOT_VERSION` in the server's `.env`, pulls the new Docker image, restarts the container, rebuilds `.next`, and reloads PM2 — no manual `docker compose` needed.
-
-> **Upgrade failed?** See [Recovering from a Failed Upgrade](docs/UPGRADE.md#recovering-from-a-failed-upgrade).
-
-### Understanding `init`
-
-#### How your project is structured
-
-When you ran `thepopebot init` the first time, it scaffolded a project folder with two kinds of files:
-
-**Your files** — These are yours to customize. `init` will never overwrite them:
-
-| Files | What they do |
-|-------|-------------|
-| `config/SOUL.md`, `EVENT_HANDLER.md`, `AGENT.md`, etc. | Your agent's personality, behavior, and prompts |
-| `config/CRONS.json`, `TRIGGERS.json` | Your scheduled jobs and webhook triggers |
-| `app/` | Next.js pages and UI components |
-| `docker/job-pi-coding-agent/` | The Dockerfile for the Pi coding agent job container |
-
-**Managed files** — These are infrastructure files that need to stay in sync with the package version. `init` auto-updates them for you:
-
-| Files | What they do |
-|-------|-------------|
-| `.github/workflows/` | GitHub Actions that run jobs, auto-merge PRs, rebuild on deploy |
-| `docker-compose.yml` | Defines how your containers run together (Traefik, event handler, runner) |
-| `docker/event-handler/` | The Dockerfile for the event handler container |
-| `.dockerignore` | Keeps unnecessary files out of Docker builds |
-| `CLAUDE.md` | AI assistant context for your project |
-
-#### What happens when you run `init`
-
-1. **Managed files** are updated automatically to match the new package version
-2. **Your files** are left alone — but if the package ships new defaults (e.g., a new field in `CRONS.json`), `init` lets you know:
-
-```
-Updated templates available:
-These files differ from the current package templates.
-
-  config/CRONS.json
-
-To view differences:  npx thepopebot diff <file>
-To reset to default:  npx thepopebot reset <file>
-```
-
-You can review at your own pace:
-
-```bash
-npx thepopebot diff config/CRONS.json    # see what changed
-npx thepopebot reset config/CRONS.json   # accept the new template
-```
-
-#### If you've modified managed files
-
-If you've made custom changes to managed files (e.g., added extra steps to a GitHub Actions workflow), use `--no-managed` so `init` doesn't overwrite your changes:
-
-```bash
-npx thepopebot init --no-managed
-```
-
-#### Template file conventions
-
-The `templates/` directory contains files scaffolded into user projects by `thepopebot init`. Two naming conventions handle files that npm or AI tools would otherwise misinterpret:
-
-**`.template` suffix** — Files ending in `.template` are scaffolded with the suffix stripped. This is used for files that npm mangles (`.gitignore`) or that AI tools would pick up as real project docs (`CLAUDE.md`).
-
-| In `templates/` | Scaffolded as |
-|-----------------|---------------|
-| `.gitignore.template` | `.gitignore` |
-| `CLAUDE.md.template` | `CLAUDE.md` |
-| `api/CLAUDE.md.template` | `api/CLAUDE.md` |
-
-**`CLAUDE.md` exclusion** — The scaffolding walker skips any file named `CLAUDE.md` (without the `.template` suffix). This is a safety net so a bare `CLAUDE.md` accidentally added to `templates/` never gets copied into user projects where AI tools would confuse it with real project instructions.
-
----
-
-## CLI Commands
-
-All commands are run via `npx thepopebot <command>` (or the `npm run` shortcuts where noted).
-
-**Project setup:**
-
-| Command | Description |
-|---------|-------------|
-| `init` | Scaffold a new project, or update templates in an existing one |
-| `setup` | Run the full interactive setup wizard (`npm run setup`) |
-| `setup-telegram` | Reconfigure the Telegram webhook (`npm run setup-telegram`) |
-| `reset-auth` | Regenerate AUTH_SECRET, invalidating all sessions |
-
-**Templates:**
-
-| Command | Description |
-|---------|-------------|
-| `diff [file]` | List files that differ from package templates, or diff a specific file |
-| `reset [file]` | List all template files, or restore a specific one to package default |
-
-**Secrets & variables:**
-
-These commands set individual GitHub repository secrets/variables using the `gh` CLI. They read `GH_OWNER` and `GH_REPO` from your `.env`. If VALUE is omitted, you'll be prompted with masked input (keeps secrets out of shell history).
-
-| Command | Description |
-|---------|-------------|
-| `set-agent-secret KEY [VALUE]` | Set `AGENT_<KEY>` GitHub secret and update `.env` |
-| `set-agent-llm-secret KEY [VALUE]` | Set `AGENT_LLM_<KEY>` GitHub secret |
-| `set-var KEY [VALUE]` | Set a GitHub repository variable |
-
-GitHub secrets use a prefix convention so the workflow can route them correctly:
-
-- **`AGENT_`** — Protected secrets passed to the Docker container (filtered from LLM). Example: `AGENT_GH_TOKEN`, `AGENT_ANTHROPIC_API_KEY`
-- **`AGENT_LLM_`** — LLM-accessible secrets (not filtered). Example: `AGENT_LLM_BRAVE_API_KEY`
-- **No prefix** — Workflow-only secrets, never passed to container. Example: `GH_WEBHOOK_SECRET`
-
----
-
-## Security
-
-thepopebot includes API key authentication, webhook secret validation (fail-closed), session encryption, secret filtering in the Docker agent, and auto-merge path restrictions. However, all software carries risk — thepopebot is provided as-is, and you are responsible for securing your own infrastructure. If you're running locally with a tunnel (ngrok, Cloudflare Tunnel, port forwarding), be aware that your dev server endpoints are publicly accessible with no rate limiting and no TLS on the local hop.
-
-See [Security](docs/SECURITY.md) for full details on what's exposed, the risks, and recommendations.
-
----
-
-## Running Different Models
-
-The Event Handler (chat, Telegram, webhooks) and Jobs (Docker agent) are two independent layers — each can run a different LLM. Use Claude for interactive chat and a cheaper or local model for long-running jobs, mix providers per cron entry, or run everything on a single model.
-
-See [Running Different Models](docs/RUNNING_DIFFERENT_MODELS.md) for the full guide: Event Handler config, job defaults, per-job overrides, provider table, and custom provider setup.
 
 ---
 
